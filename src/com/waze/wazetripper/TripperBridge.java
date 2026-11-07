@@ -103,6 +103,10 @@ final class TripperBridge {
     private final ArrayDeque<byte[]> sendQueue = new ArrayDeque<>();
     private boolean writePending;
     private long lastSendMillis;
+    // Android should invoke onCharacteristicWrite for every accepted request. If a vendor BLE
+    // stack loses that callback, leaving the queue locked forever is worse than reconnecting.
+    private static final long WRITE_CALLBACK_TIMEOUT_MS = 2_500L;
+    private Runnable writeCallbackTimeout;
     private Runnable keepAliveRunnable;
 
     private TripperBridge(Context appCtx) {
@@ -419,6 +423,7 @@ final class TripperBridge {
     void disconnect() {
         stopScan();
         stopKeepAlive();
+        cancelWriteCallbackTimeout();
         sendQueue.clear();
         writePending = false;
         if (bluetoothGatt != null) {
@@ -614,6 +619,7 @@ final class TripperBridge {
                 gatt.discoverServices();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 stopKeepAlive();
+                cancelWriteCallbackTimeout();
                 sendQueue.clear();
                 writePending = false;
                 log("Desconectado do Tripper (status=" + status + ").");
@@ -672,7 +678,11 @@ final class TripperBridge {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            cancelWriteCallbackTimeout();
             writePending = false;
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                log("Escrita BLE falhou (status=" + status + "); retomando a fila.");
+            }
             pumpQueue();
         }
 
@@ -791,6 +801,32 @@ final class TripperBridge {
             log("writeCharacteristic() falhou na hora - liberando pra tentar o proximo.");
             writePending = false;
             main.post(this::pumpQueue);
+        } else {
+            armWriteCallbackTimeout(gatt);
+        }
+    }
+
+    /** Recupera de uma pilha BLE que aceitou uma escrita mas nunca entregou o callback. */
+    private void armWriteCallbackTimeout(final BluetoothGatt gatt) {
+        cancelWriteCallbackTimeout();
+        writeCallbackTimeout = () -> {
+            if (!writePending || bluetoothGatt != gatt) return;
+            log("Timeout aguardando callback de escrita BLE; reconectando para evitar fila travada.");
+            writePending = false;
+            sendQueue.clear();
+            try {
+                gatt.disconnect();
+            } catch (Exception e) {
+                log("Falha ao encerrar link BLE travado: " + e.getMessage());
+            }
+        };
+        main.postDelayed(writeCallbackTimeout, WRITE_CALLBACK_TIMEOUT_MS);
+    }
+
+    private void cancelWriteCallbackTimeout() {
+        if (writeCallbackTimeout != null) {
+            main.removeCallbacks(writeCallbackTimeout);
+            writeCallbackTimeout = null;
         }
     }
 

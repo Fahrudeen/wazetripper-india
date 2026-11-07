@@ -4,6 +4,13 @@ Versioning follows [SemVer](https://semver.org) while in `0.x` (anything may cha
 version lives in `src/com/waze/wazetripper/Version.java` and is shown in the app's panel and in the
 header of exported trip logs.
 
+## 0.6.0-india — 2026-11-07
+
+Changed
+- India builds encode roundabout exits with the Pod's left-hand-traffic sequence (`0x0B`–`0x13`). The right-hand sequence remains covered by an explicit protocol regression check.
+- Camera and average-speed alerts default to the compatible, observed packet layout; the undocumented experimental layout remains available as an opt-in setting.
+- A lost Android BLE write callback now triggers a clean reconnect instead of leaving the serialized packet queue permanently stalled.
+
 ## 0.5.1 — 2026-09-20
 
 Added

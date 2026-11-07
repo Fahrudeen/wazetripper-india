@@ -204,11 +204,20 @@ final class TripperProtocol {
     /**
      * Byte de manobra do Pod (byte [2] do pacote de navegacao) a partir do nome do
      * Instruction$Type do Waze; -1 se nao ha traducao (quem chama mantem a manobra anterior).
-     * Tabela em docs/PROTOCOL.md (mao direita = Brasil). exit e' o ordinal da
+     * Tabela em docs/PROTOCOL.md. Esta distribuicao India usa mao inglesa; exit e' o ordinal da
      * saida da rotatoria (<= 0 quando nao ha). Linhas de baixa confianca na tabela
      * (parada, destino intermediario, faixa HOV) ainda precisam de teste fisico no Pod.
      */
     static int maneuverByte(String type, int exit) {
+        return maneuverByte(type, exit, true);
+    }
+
+    /**
+     * Traduz uma manobra para uma orientacao de trafego explicita. O overload existe para os
+     * testes de protocolo e para manter o mapeamento documentado de mao direita verificavel;
+     * o aplicativo India sempre chama o overload de dois argumentos, que usa mao inglesa.
+     */
+    static int maneuverByte(String type, int exit, boolean leftHandTraffic) {
         if (type == null) return -1;
         switch (type) {
             case "TURN_LEFT":
@@ -248,7 +257,10 @@ final class TripperProtocol {
             default:
                 if (type.startsWith("ROUNDABOUT")) {
                     int n = Math.max(1, Math.min(9, exit));
-                    return 0x32 + (n - 1);
+                    // O Pod tem familias separadas para rotatorias no sentido horario e anti-horario.
+                    // Na India o trafego circula pela esquerda, portanto a saida e' codificada na
+                    // familia anti-horaria 0x0B..0x13, nao na familia brasileira 0x32..0x3A.
+                    return (leftHandTraffic ? 0x0B : 0x32) + (n - 1);
                 }
                 return -1; // NAV_INSTR_NONE, UNKNOWN, UNRECOGNIZED
         }

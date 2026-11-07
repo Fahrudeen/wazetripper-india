@@ -196,8 +196,9 @@ Codes observed on the Pod (Confirmed unless noted):
 | `1C` | re-routing | `44` | low battery |
 | `1D` | on-ramp right | `FF` | blank |
 
-Roundabouts (right-hand traffic): `0x32 + (exit − 1)` for exits 1–9 (`0x0B + (exit − 1)` for
-left-hand traffic; WazeTripper only implements right-hand).
+Roundabouts use `0x32 + (exit − 1)` for exits 1–9 in right-hand traffic and `0x0B + (exit − 1)`
+in left-hand traffic. **This India fork implements the left-hand sequence**; the explicit
+three-argument protocol helper keeps the right-hand sequence available for regression checks.
 
 Untested ranges: `0B–13`, `23–2A`, `32–3B` (partly used by roundabouts), `40–41`, `43`, `45–FE`.
 Some sources disagree on `1C`, `1E`, `1F` (re-routing / lane closed / keep vs on-ramp); WazeTripper does not
@@ -218,7 +219,7 @@ From `TripperProtocol.maneuverByte()`; Waze names are `Instruction$Type`.
 | `EXIT_RIGHT`, `PREPARE_EXIT_RIGHT` | `2D` | `2C` |
 | `CONTINUE_STRAIGHT`, `ENTER_HOV_LANE` | `09` | `09` |
 | `U_TURN` | `3D` | `3D` |
-| `ROUNDABOUT_*` | `32 + (exit−1)`, exit clamped to 1–9 | same |
+| `ROUNDABOUT_*` | India: `0B + (exit−1)`, exit clamped to 1–9 | same |
 | `APPROACHING_DESTINATION`, `LAST_DIRECTION`, `APPROACHING_STOP_POINT`, `WAYPOINT_DELAY` | `00` | `FF` for `LAST_DIRECTION` |
 | anything else | no icon (the previous one is kept; a warning is logged) | `FF` |
 

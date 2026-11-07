@@ -230,12 +230,14 @@ public class PacketsCheck {
         for (String[] m : man) {
             yes("manobra " + m[0] + " -> 0x" + m[1], TripperProtocol.maneuverByte(m[0], -1) == Integer.parseInt(m[1], 16));
         }
-        yes("rotatoria, saida 1 -> 0x32", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 1) == 0x32);
-        yes("rotatoria, saida 2 -> 0x33", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 2) == 0x33);
-        yes("rotatoria, saida 9 -> 0x3A", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 9) == 0x3A);
-        yes("rotatoria, saida 12 limita em 9 -> 0x3A", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 12) == 0x3A);
-        yes("rotatoria, sem saida (0 ou -1) -> saida 1", TripperProtocol.maneuverByte("ROUNDABOUT_EXIT", 0) == 0x32
-                && TripperProtocol.maneuverByte("ROUNDABOUT_EXIT", -1) == 0x32);
+        yes("India (mao inglesa): rotatoria, saida 1 -> 0x0B", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 1) == 0x0B);
+        yes("India (mao inglesa): rotatoria, saida 2 -> 0x0C", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 2) == 0x0C);
+        yes("India (mao inglesa): rotatoria, saida 9 -> 0x13", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 9) == 0x13);
+        yes("India (mao inglesa): saida 12 limita em 9 -> 0x13", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 12) == 0x13);
+        yes("India (mao inglesa): sem saida (0 ou -1) -> saida 1", TripperProtocol.maneuverByte("ROUNDABOUT_EXIT", 0) == 0x0B
+                && TripperProtocol.maneuverByte("ROUNDABOUT_EXIT", -1) == 0x0B);
+        yes("Referencia mao direita: rotatoria, saida 1 -> 0x32", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 1, false) == 0x32);
+        yes("Referencia mao direita: rotatoria, saida 9 -> 0x3A", TripperProtocol.maneuverByte("ROUNDABOUT_ENTER", 9, false) == 0x3A);
         yes("NAV_INSTR_NONE sem traducao (-1)", TripperProtocol.maneuverByte("NAV_INSTR_NONE", -1) == -1);
         yes("UNRECOGNIZED sem traducao (-1)", TripperProtocol.maneuverByte("UNRECOGNIZED", -1) == -1);
         yes("null sem traducao (-1)", TripperProtocol.maneuverByte(null, -1) == -1);
@@ -270,7 +272,7 @@ public class PacketsCheck {
         yes("proxima: null e NAV_INSTR_NONE -> sem dado (FF)", TripperProtocol.nextManeuverByte(null, -1) == 0xFF
                 && TripperProtocol.nextManeuverByte("NAV_INSTR_NONE", -1) == 0xFF);
         yes("proxima: TURN_LEFT -> 0x14", TripperProtocol.nextManeuverByte("TURN_LEFT", -1) == 0x14);
-        yes("proxima: rotatoria saida 3 -> 0x34", TripperProtocol.nextManeuverByte("ROUNDABOUT_ENTER", 3) == 0x34);
+        yes("proxima India: rotatoria saida 3 -> 0x0D", TripperProtocol.nextManeuverByte("ROUNDABOUT_ENTER", 3) == 0x0D);
         yes("constantes: radar = 0x3C, sem dado = 0xFF", TripperProtocol.NEXT_RADAR == 0x3C && TripperProtocol.NEXT_NONE == 0xFF);
 
         System.out.println(failures == 0

@@ -115,6 +115,7 @@ download source, languages) are in `.env.example`; you do not need it for a norm
 - Navigation: current maneuver, **next maneuver**, distances, roundabout exit, and a bottom line you choose (total
   distance, time remaining or arrival time, in 12h or 24h).
 - **Radar alerts** (cameras, average-speed zones) on the Tripper when within 300 m, shown as a small pin.
+- **India traffic defaults:** left-hand-traffic roundabout icons and the compatible (hardware-observed) camera-alert layout.
 - Day/night follows Waze's theme. Without a route: the Tripper's clock, or a GPS compass.
 - **Trip logs**: each navigation can be exported from the panel, to check which icons were wrong or missing.
 
@@ -122,7 +123,7 @@ download source, languages) are in `.env.example`; you do not need it for a norm
 
 | | |
 |---|---|
-| Version | `0.5.1` (see [`CHANGELOG.md`](CHANGELOG.md)) |
+| Version | `0.6.0-india` (see [`CHANGELOG.md`](CHANGELOG.md)) |
 | Tested on | Royal Enfield Meteor 350 Tripper Pod, Waze **5.23.0.2**, Samsung Galaxy S23 |
 | Waze version | Only **5.23.0.2**. The patches depend on names that change between Waze releases. |
 | Verified on hardware | the link and navigation stay alive with Waze minimized and the screen locked; automatic reconnection; the radar icon |
