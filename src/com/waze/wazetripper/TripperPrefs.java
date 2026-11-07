@@ -75,7 +75,9 @@ final class TripperPrefs {
     static final int RADAR_EXPERIMENTAL = 2;
 
     static int radarMode(Context ctx) {
-        return settings(ctx).getInt(KEY_RADAR_MODE, RADAR_EXPERIMENTAL);
+        // Compatible is the observed Pod layout. Experimental uses undocumented bytes [8-9]
+        // and remains opt-in from the panel.
+        return settings(ctx).getInt(KEY_RADAR_MODE, RADAR_COMPAT);
     }
 
     static void setRadarMode(Context ctx, int mode) {
